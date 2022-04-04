@@ -6,6 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AuthTokenInfo } from './interface';
 import { MailService } from 'src/mail/mail.service';
+import * as jsonwebtoken from 'jsonwebtoken';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -52,6 +54,9 @@ export class AuthService {
     if (!user) {
       throw new ForbiddenException('Credntials incorrect');
     }
+    if (!user.activate) {
+      throw new ForbiddenException('您尚未啟用連結');
+    }
     const pwMatches = user.password === dto.password;
     if (!pwMatches) {
       throw new ForbiddenException('Credntials incorrect');
@@ -76,5 +81,31 @@ export class AuthService {
       secret: secret,
     });
     return token;
+  }
+
+  async activate(token: string): Promise<User> {
+    const key = await this.config.get('JWT_SECRET');
+    const decode = await jsonwebtoken.verify(token, key);
+    const userId = decode.sub as unknown as number;
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    if (!user) {
+      throw new ForbiddenException('Credntials incorrect');
+    }
+    const newUser = await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        ...user,
+        activate: true,
+      },
+    });
+    delete newUser.password;
+
+    return newUser;
   }
 }
