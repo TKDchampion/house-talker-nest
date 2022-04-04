@@ -25,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException('Access to resources denied');
     }
-    delete user.hash;
+    delete user.password;
     return user;
   }
 }

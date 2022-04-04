@@ -1,12 +1,15 @@
-/*
-  Warnings:
+-- CreateTable
+CREATE TABLE "User" (
+    "id" SERIAL NOT NULL,
+    "createAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updateAt" TIMESTAMP(3) NOT NULL,
+    "account" TEXT NOT NULL,
+    "activate" BOOLEAN NOT NULL,
+    "nickName" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
 
-  - You are about to drop the `bookmark` table. If the table is not empty, all the data it contains will be lost.
-  - A unique constraint covering the columns `[email]` on the table `User` will be added. If there are existing duplicate values, this will fail.
-
-*/
--- DropTable
-DROP TABLE "bookmark";
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Bookmark" (
@@ -22,7 +25,7 @@ CREATE TABLE "Bookmark" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX "User_account_key" ON "User"("account");
 
 -- AddForeignKey
 ALTER TABLE "Bookmark" ADD CONSTRAINT "Bookmark_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

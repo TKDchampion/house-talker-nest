@@ -1,6 +1,6 @@
 import { PrismaService } from './../prisma/prisma.service';
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { AuthLoginDto, AuthSignDto } from './dto';
+import { AuthLoginDto, AuthSignDto, AuthTokenInfo } from './dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -16,13 +16,18 @@ export class AuthService {
   async singup(dto: AuthSignDto) {
     try {
       const user = await this.prisma.user.create({
-        data: { email: dto.email, hash: dto.password },
+        data: {
+          email: dto.email,
+          password: dto.password,
+          nickName: dto.nickName,
+          activate: false,
+        },
       });
       return this.createToken(user.id, user.email);
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          throw new ForbiddenException('Credntials taken');
+          throw new ForbiddenException('帳號或暱稱已存在');
         } else {
           throw error;
         }
@@ -30,7 +35,7 @@ export class AuthService {
     }
   }
 
-  async login(dto: AuthLoginDto) {
+  async login(dto: AuthLoginDto): Promise<AuthTokenInfo> {
     const user = await this.prisma.user.findUnique({
       where: {
         email: dto.email,
@@ -39,18 +44,20 @@ export class AuthService {
     if (!user) {
       throw new ForbiddenException('Credntials incorrect');
     }
-    const pwMatches = user.hash === dto.password;
+    const pwMatches = user.password === dto.password;
     if (!pwMatches) {
       throw new ForbiddenException('Credntials incorrect');
     }
 
-    return this.createToken(user.id, user.email);
+    return {
+      access_token: await this.createToken(user.id, user.email),
+      email: user.email,
+      nickName: user.nickName,
+      userId: user.id,
+    };
   }
 
-  async createToken(
-    userId: number,
-    email: string,
-  ): Promise<{ access_token: string }> {
+  async createToken(userId: number, email: string): Promise<string> {
     const payload = {
       sub: userId,
       email,
@@ -60,8 +67,6 @@ export class AuthService {
       expiresIn: '1d',
       secret: secret,
     });
-    return {
-      access_token: token,
-    };
+    return token;
   }
 }
