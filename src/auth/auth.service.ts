@@ -1,9 +1,11 @@
 import { PrismaService } from './../prisma/prisma.service';
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { AuthLoginDto, AuthSignDto, AuthTokenInfo } from './dto';
+import { AuthLoginDto, AuthSignDto } from './dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { AuthTokenInfo } from './interface';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -11,6 +13,7 @@ export class AuthService {
     private prisma: PrismaService,
     private config: ConfigService,
     private jwt: JwtService,
+    private mailService: MailService,
   ) {}
 
   async singup(dto: AuthSignDto) {
@@ -23,7 +26,12 @@ export class AuthService {
           activate: false,
         },
       });
-      return this.createToken(user.id, user.email);
+      const token = await this.createToken(user.id, user.email);
+      await this.mailService.sendUserConfirmation(
+        { email: user.email, name: user.nickName },
+        token,
+      );
+      return { message: 'success' };
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
