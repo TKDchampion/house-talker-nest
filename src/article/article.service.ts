@@ -5,16 +5,17 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as moment from 'moment-timezone';
-import { Article } from '@prisma/client';
+import { Article, User } from '@prisma/client';
 import { ArticleDto } from './dto';
 
 @Injectable()
 export class ArticleService {
   constructor(private prisma: PrismaService) {}
-  async create(userId: number, dto: ArticleDto) {
-    const user = await this.prisma.article.create({
+  async create(user: User, dto: ArticleDto) {
+    const createUser = await this.prisma.article.create({
       data: {
-        userId,
+        userId: user.id,
+        nickName: user.nickName,
         timeTw: moment(new Date())
           .tz('Asia/Taipei')
           .format('YYYY/MM/DD HH:mm:ss'),
@@ -22,7 +23,7 @@ export class ArticleService {
       },
     });
 
-    return user;
+    return createUser;
   }
 
   async getByUser(userId: number): Promise<Article[]> {
@@ -35,7 +36,7 @@ export class ArticleService {
   }
 
   async update(
-    userId: number,
+    user: User,
     articleDto: ArticleDto,
     articleId: number,
   ): Promise<Article> {
@@ -48,7 +49,7 @@ export class ArticleService {
     if (!article) {
       throw new ForbiddenException('Credntials incorrect');
     }
-    if (article.userId !== userId) {
+    if (article.userId !== user.id) {
       throw new UnauthorizedException('Access to resources denied');
     }
 
@@ -57,6 +58,7 @@ export class ArticleService {
         id: article.id,
       },
       data: {
+        nickName: user.nickName,
         ...articleDto,
       },
     });
@@ -86,7 +88,12 @@ export class ArticleService {
 
   async getAllNews(): Promise<Article[]> {
     const article = await this.prisma.article.findMany();
-    article.forEach((item) => delete item.content);
+    article.forEach((item) => {
+      if (item.isHiddenName) {
+        item.nickName = '匿名';
+      }
+      delete item.content;
+    });
 
     return article;
   }
@@ -97,6 +104,9 @@ export class ArticleService {
         id: articleId,
       },
     });
+    if (article.isHiddenName) {
+      article.nickName = '匿名';
+    }
     return article;
   }
 }

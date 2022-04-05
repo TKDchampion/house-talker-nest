@@ -21,10 +21,6 @@ export class ArticleDto {
   @IsNotEmpty()
   content: string;
 
-  @IsString()
-  @IsNotEmpty()
-  nickName: string;
-
   @IsBoolean()
   isHiddenName: boolean;
 }

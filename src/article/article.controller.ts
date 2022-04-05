@@ -1,3 +1,4 @@
+import { User } from '@prisma/client';
 import {
   Controller,
   Post,
@@ -20,8 +21,8 @@ export class ArticleController {
 
   @UseGuards(JwtGuard)
   @Post('create')
-  create(@GetUser('id') userId: number, @Body() dto: ArticleDto) {
-    return this.articleService.create(userId, dto);
+  create(@GetUser() user: User, @Body() dto: ArticleDto) {
+    return this.articleService.create(user, dto);
   }
 
   @UseGuards(JwtGuard)
@@ -33,11 +34,11 @@ export class ArticleController {
   @UseGuards(JwtGuard)
   @Patch('update/:id')
   update(
-    @GetUser('id') userId: number,
+    @GetUser() user: User,
     @Body() articleDto: ArticleDto,
     @Param('id', ParseIntPipe) articleId: number,
   ) {
-    return this.articleService.update(userId, articleDto, articleId);
+    return this.articleService.update(user, articleDto, articleId);
   }
 
   @UseGuards(JwtGuard)

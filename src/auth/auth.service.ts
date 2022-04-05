@@ -28,7 +28,7 @@ export class AuthService {
           activate: false,
         },
       });
-      const token = await this.createToken(user.id, user.email);
+      const token = await this.createToken(user.id, user.email, user.nickName);
       await this.mailService.sendUserConfirmation(
         { email: user.email, name: user.nickName },
         token,
@@ -63,17 +63,22 @@ export class AuthService {
     }
 
     return {
-      access_token: await this.createToken(user.id, user.email),
+      access_token: await this.createToken(user.id, user.email, user.nickName),
       email: user.email,
       nickName: user.nickName,
       userId: user.id,
     };
   }
 
-  async createToken(userId: number, email: string): Promise<string> {
+  async createToken(
+    userId: number,
+    email: string,
+    nickName: string,
+  ): Promise<string> {
     const payload = {
       sub: userId,
       email,
+      nickName,
     };
     const secret = this.config.get('JWT_SECRET');
     const token = await this.jwt.signAsync(payload, {
