@@ -34,11 +34,11 @@ export class ArticleController {
   @UseGuards(JwtGuard)
   @Patch('update/:id')
   update(
-    @GetUser() user: User,
+    @GetUser('id') userId: number,
     @Body() articleDto: ArticleDto,
     @Param('id', ParseIntPipe) articleId: number,
   ) {
-    return this.articleService.update(user, articleDto, articleId);
+    return this.articleService.update(userId, articleDto, articleId);
   }
 
   @UseGuards(JwtGuard)

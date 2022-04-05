@@ -36,7 +36,7 @@ export class ArticleService {
   }
 
   async update(
-    user: User,
+    userId: number,
     articleDto: ArticleDto,
     articleId: number,
   ): Promise<Article> {
@@ -49,7 +49,7 @@ export class ArticleService {
     if (!article) {
       throw new ForbiddenException('Credntials incorrect');
     }
-    if (article.userId !== user.id) {
+    if (article.userId !== userId) {
       throw new UnauthorizedException('Access to resources denied');
     }
 
@@ -58,8 +58,10 @@ export class ArticleService {
         id: article.id,
       },
       data: {
-        nickName: user.nickName,
         ...articleDto,
+        timeTw: moment(new Date())
+          .tz('Asia/Taipei')
+          .format('YYYY/MM/DD HH:mm:ss'),
       },
     });
     return newArticle;
