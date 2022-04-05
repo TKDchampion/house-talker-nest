@@ -7,6 +7,7 @@ import { BookmarkModule } from './bookmark/bookmark.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { MailModule } from './mail/mail.module';
+import { ArticleModule } from './article/article.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { MailModule } from './mail/mail.module';
     BookmarkModule,
     PrismaModule,
     MailModule,
+    ArticleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

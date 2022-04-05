@@ -21,7 +21,25 @@ model User {
   password String
 
   bookmarks Bookmark[]
-  // @@map("users")
+  Article   Article[]
+}
+
+model Article {
+  id       Int      @id @default(autoincrement())
+  createAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+
+  title          String
+  location       String
+  tips           String
+  summaryContent String
+  content        String
+  nickName       String
+  isHiddenName   Boolean
+  timeTw         String
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Bookmark {
@@ -35,5 +53,4 @@ model Bookmark {
 
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  // @@map("bookmarks")
 }
