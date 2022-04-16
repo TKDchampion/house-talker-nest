@@ -20,8 +20,8 @@ model User {
   nickName String  @unique
   password String
 
-  Article Article[]
-  Comment Comment[]
+  articles Article[]
+  comments Comment[]
 }
 
 model Comment {
@@ -58,5 +58,5 @@ model Article {
   userId Int
   user   User @relation(fields: [userId], references: [id])
 
-  Comment Comment[]
+  comments Comment[]
 }

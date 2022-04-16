@@ -37,7 +37,7 @@ export class CommentController {
 
   @UseGuards(JwtGuard)
   @Delete('delete/:id')
-  detlet(
+  delete(
     @GetUser('id') userId: number,
     @Param('id', ParseIntPipe) commentId: number,
   ) {

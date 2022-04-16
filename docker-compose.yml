@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   prod-api:
-    container_name: nestjs_api
+    container_name: nestjs-api
     image: nestjs-api-img
     build:
       context: .

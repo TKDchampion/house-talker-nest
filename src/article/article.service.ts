@@ -31,7 +31,20 @@ export class ArticleService {
       where: {
         userId,
       },
+      include: {
+        comments: true,
+      },
     });
+
+    article.forEach((item) => {
+      if (item.isHiddenName) {
+        item.nickName = '匿名';
+      }
+      item['replies'] = item.comments.length;
+      delete item.content;
+      delete item.comments;
+    });
+
     return article;
   }
 
@@ -89,12 +102,18 @@ export class ArticleService {
   }
 
   async getAllNews(): Promise<Article[]> {
-    const article = await this.prisma.article.findMany();
+    const article = await this.prisma.article.findMany({
+      include: {
+        comments: true,
+      },
+    });
     article.forEach((item) => {
       if (item.isHiddenName) {
         item.nickName = '匿名';
       }
+      item['replies'] = item.comments.length;
       delete item.content;
+      delete item.comments;
     });
 
     return article;
