@@ -1,5 +1,9 @@
 import { PrismaService } from './../prisma/prisma.service';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthLoginDto, AuthSignDto } from './dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { ConfigService } from '@nestjs/config';
@@ -59,7 +63,7 @@ export class AuthService {
     }
     const pwMatches = user.password === dto.password;
     if (!pwMatches) {
-      throw new ForbiddenException('Credntials incorrect');
+      throw new UnauthorizedException('Credntials incorrect');
     }
 
     return {
