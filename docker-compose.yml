@@ -26,7 +26,7 @@ services:
     env_file:
       - .env
     volumes:
-      - web_data_dev:/var/lib/postgresql/data
+      - ~/web_data:/var/lib/postgresql/data
     networks:
       - houseTalker
   prod-db:
@@ -36,11 +36,8 @@ services:
     env_file:
       - .prod.env
     volumes:
-      - web_data:/var/lib/postgresql/data
+      - /var/house-talker-nest/web_data:/var/lib/postgresql/data
     networks:
       - houseTalker
 networks:
   houseTalker:
-volumes:
-  web_data:
-  web_data_dev:
